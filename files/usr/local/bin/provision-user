@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+#####################################################################
+# These env vars are set within the kdk docker image upon startup from the
+#   ~/.kdk/kdk/config.yaml.  However, if we're running the packer vagrant image of
+#   the kdk, these are not passed in.  Set sane defaults for packer.
+KDK_SHELL=${KDK_SHELL:-$SHELL}
+KDK_DOTFILES_REPO=${KDK_DOTFILES_REPO:-https://github.com/cisco-sso/yadm-dotfiles.git}
+if [ -z "${KDK_USERNAME+x}" ]; then
+  # Set KDK_USERNAME to be $SUDO_USER if exists, otherwise $USER
+  if [ ! -z "${SUDO_USER+x}" ]; then
+    KDK_USERNAME=${SUDO_USER}
+  else
+    KDK_USERNAME=${USER}
+  fi
+fi
+#####################################################################
+
+OS=$(grep "^ID" /etc/os-release | cut -d= -f2) # ubuntu | debian | centos
+SUDO_GROUP=$([ "$OS" == "centos" ] && echo "wheel" || echo "sudo")
+
+if [[ ! -f "/etc/kdk/provisioned" ]]; then
+  # Check if user exists. If not, create
+  if ! getent passwd ${KDK_USERNAME} 2>&1 >/dev/null; then
+    useradd ${KDK_USERNAME} -m -G ${SUDO_GROUP},users,docker -s ${KDK_SHELL} >/dev/null 2>&1
+  fi
+
+  # Check if user is not in docker group.  If not, add them
+  #   For vagrant, the user may already exist but not be in the group
+  if ! groups ${KDK_USERNAME} | grep -E ' docker\s?' 2>&1 >/dev/null; then
+    usermod -a -G docker ${KDK_USERNAME}
+  fi
+
+  # Check if .ssh dir exists
+  if [[ ! -d /home/${KDK_USERNAME}/.ssh/ ]]; then
+    install -d -o ${KDK_USERNAME} -g ${KDK_USERNAME} -m 0700 /home/${KDK_USERNAME}/.ssh
+  fi
+
+  # Check if ~/.ssh/authorized_keys exists. If not and /tmp/id_rsa.pub exists then cp
+  if [[ ! -f /home/${KDK_USERNAME}/.ssh/authorized_keys ]]; then
+    if [[ -f /tmp/id_rsa.pub ]]; then
+      install -o ${KDK_USERNAME} -g ${KDK_USERNAME} -m 0600 /tmp/id_rsa.pub /home/${KDK_USERNAME}/.ssh/authorized_keys
+    else
+      echo "Public key file not found at /tmp/id_rsa.pub"
+      exit 1
+    fi
+  fi
+
+  # Set no password for sudo users
+  if [[ "$OS" == "centos" ]]; then
+    sed -i 's@^# %wheel@%wheel@g' /etc/sudoers
+  else
+    sed -i 's@\%sudo\tALL=(ALL:ALL) ALL@\%sudo\tALL=(ALL) NOPASSWD:ALL@g' /etc/sudoers
+  fi
+
+  if [[ -d "/home/linuxbrew" ]]; then
+    export TMP_DIR=$(mktemp -d -t XXXXXXXXXX)
+    mv /home/linuxbrew/.linuxbrew/ ${TMP_DIR}
+    mv ${TMP_DIR}/.linuxbrew/ /home/linuxbrew/
+    rm -fr ${TMP_DIR}
+    echo "meow"
+    chown -R ${KDK_USERNAME}:users /home/linuxbrew
+  fi
+  # Ensure permissions for a few locations
+  chown ${KDK_USERNAME}:${KDK_USERNAME} /home/${KDK_USERNAME}
+  for item in config cache local; do
+    ITEM_PATH="/home/${KDK_USERNAME}/.${item}"
+    if [[ -d "${ITEM_PATH}" ]]; then
+      chown -R ${KDK_USERNAME}:${KDK_USERNAME} ${ITEM_PATH}
+    fi
+  done
+  if [[ -d /go ]]; then
+    chown -R ${KDK_USERNAME}:${KDK_USERNAME} /go
+  fi
+  install -m 0600 -o ${KDK_USERNAME} /dev/null /var/log/kdk-provision.log
+
+  # Setup yadm dotfiles
+  if runuser -l ${KDK_USERNAME} -c "source /etc/profile && yadm clone --bootstrap ${KDK_DOTFILES_REPO}" >>/var/log/kdk-provision.log 2>&1; then
+    mkdir -p /etc/kdk
+    echo 1 >/etc/kdk/provisioned
+  fi
+fi

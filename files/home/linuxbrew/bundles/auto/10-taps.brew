@@ -1,0 +1,4 @@
+#█▓▒░ taps
+tap "go-task/tap"
+tap "johanhaleby/kubetail"
+tap "rtluckie/tap"
