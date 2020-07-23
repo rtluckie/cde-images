@@ -107,8 +107,7 @@ RUN brew bundle install --no-lock --verbose --file \
 # --
 USER root
 RUN brew cleanup \
-    && rm -fr /home/linuxbrew/.cache && \
-    chown -R 1000:100 /home/linuxbrew 
+    && rm -fr /home/linuxbrew/.cache
 # # ------------------
 FROM linuxbrew/brew:2.4.8 AS gobin
 ENV LANG=en_US.UTF-8 \

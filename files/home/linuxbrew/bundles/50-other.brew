@@ -1,4 +1,3 @@
-█▓▒░ dev
 # editors
 # brew "emacs"
 brew "vim"
@@ -110,7 +109,7 @@ brew "libpcap"
 brew "curl"
 brew "whois"
 brew "wget"
-brew "openssh"
+# brew "openssh"
 brew "openconnect"
 brew "tcpdump"
 brew "dhcpdump"
@@ -138,20 +137,21 @@ brew "rtluckie/tap/crictl"
 brew "go-jsonnet"
 
 # DB 
-brew "libpg"
+brew "libpq"
 # i18n/l10n
 brew "gettext"
 
 # misc
-brew "consul"
+# brew "consul"
 brew "drone-cli"
-brew "etcd"
-brew "minio-mc"
-brew "rtluckie/tap/amtool"
-brew "rtluckie/tap/vault"
+# brew "etcd"
+# brew "minio-mc"
+# brew "rtluckie/tap/amtool"
+# brew "rtluckie/tap/vault"
 # brew "ansible"
 brew "grpcurl"
-brew "hugo"
+# brew "hugo"
 brew "lastpass-cli"
 brew "fzf"
 brew "gcc@5"
+brew "pre-commit"
