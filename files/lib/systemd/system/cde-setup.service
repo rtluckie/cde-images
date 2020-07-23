@@ -1,0 +1,8 @@
+[Unit]
+Description=CDE Setup and Configuration
+Before=dnsmasq.service
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c "/usr/local/bin/cde-setup"
+[Install]
+WantedBy=multi-user.target

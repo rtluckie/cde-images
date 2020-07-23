@@ -1,10 +1,6 @@
-#█▓▒░ taps
-tap "go-task/tap"
-tap "johanhaleby/kubetail"
-tap "rtluckie/tap"
-
-#█▓▒░ dev
+█▓▒░ dev
 # editors
+# brew "emacs"
 brew "vim"
 brew "neovim"
 
@@ -20,7 +16,7 @@ brew "fish"
 # shell enhancements
 brew "bash-completion"
 brew "tmux"
-brew "screen"
+# brew "screen"
 brew "dialog"
 brew "bats"
 
@@ -40,11 +36,7 @@ brew "yq"
 # git
 brew "git"
 brew "hub"
-
-# subversion
 brew "subversion"
-
-# mercurial
 brew "mercurial"
 
 #█▓▒░ languages
@@ -74,7 +66,7 @@ brew "ruby"
 # brew "rust"
 
 # python 
-brew "python@3.8"
+brew "python3"
 brew "pipenv"
 brew "pyenv"
 brew "pyenv-virtualenv"
@@ -89,16 +81,16 @@ brew "awscli"
 # k8s 
 brew "kubernetes-cli"
 brew "kubetail"
-brew "helm@3"
-brew "helm@2"
+brew "helm"
+# brew "helm@3"
+# brew "helm@2"
 brew "helmfile"
-brew "minikube"
+# brew "minikube"
 # brew "kops"
 brew "fluxctl"
 
 # terraform
-brew "terraform@0.12"
-brew "terraform@0.11"
+brew "terraform"
 brew "terragrunt"
 
 #█▓▒░ utils
@@ -118,7 +110,6 @@ brew "libpcap"
 brew "curl"
 brew "whois"
 brew "wget"
-# brew "telnet"
 brew "openssh"
 brew "openconnect"
 brew "tcpdump"
@@ -140,14 +131,14 @@ brew "fio"
 #█▓▒░ other
 # containers
 # brew "docker"
-brew "docker-compose"
+# brew "docker-compose"
 brew "rtluckie/tap/crictl"
 
 #jsonnet
 brew "go-jsonnet"
 
 # DB 
-brew "postgresql"
+brew "libpg"
 # i18n/l10n
 brew "gettext"
 
@@ -163,3 +154,4 @@ brew "grpcurl"
 brew "hugo"
 brew "lastpass-cli"
 brew "fzf"
+brew "gcc@5"
