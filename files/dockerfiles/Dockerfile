@@ -2,17 +2,6 @@
 FROM ubuntu:focal AS phase0
 ARG DEBIAN_FRONTEND=noninteractive
 
-# RUN apt-get -qqy update && \
-#     apt-get -qqy install --no-install-recommends \
-#         locales && \
-#     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 && \
-#     apt-get -qqy clean && apt-get -qqy autoremove && rm -rf /var/lib/apt/lists/*
-
-
-# ENV LANG=en_US.utf8 \
-#     LANGUAGE=en_US.utf8 \
-#     LC_ALL=en_US.utf8
-
 RUN yes | unminimize && \
     apt-get -qqy update && \
     apt-get -qqy install --no-install-recommends \
@@ -65,28 +54,7 @@ RUN yes | unminimize && \
     apt-get -qqy clean && apt-get -qqy autoremove && rm -rf /var/lib/apt/lists/*
 
 # ------------------
-# FROM phase0 AS phase1
-# ARG DEBIAN_FRONTEND=noninteractive
-# ENV LANG=en_US.UTF-8 \
-# 	SHELL=/bin/bash
-# RUN localedef -i en_US -f UTF-8 en_US.UTF-8 && \
-#     apt-get -qqy update && \
-#     apt-get -qqy install --no-install-recommends \
-#         libcurl4-openssl-dev \
-#         locate \
-#         man-db \
-#         ntp \
-#         ntpdate \
-#         openssh-server \
-#         sudo \
-#         systemd \
-#         systemd-sysv \
-#         && \
-#     apt-get -qqy install --no-install-recommends \
-#         zsh
-# RUN apt-get -qqy clean && apt-get -qqy autoremove && rm -rf /var/lib/apt/lists/*
 
-# ------------------
 FROM linuxbrew/brew:2.4.8 as linuxbrew
 USER linuxbrew
 ENV HOMEBREW_NO_ANALYTICS=1 \
@@ -108,7 +76,9 @@ RUN brew bundle install --no-lock --verbose --file \
 USER root
 RUN brew cleanup \
     && rm -fr /home/linuxbrew/.cache
-# # ------------------
+
+# ------------------
+
 FROM linuxbrew/brew:2.4.8 AS gobin
 ENV LANG=en_US.UTF-8 \
 	SHELL=/usr/bin/bash \
@@ -140,7 +110,6 @@ RUN eval $($(brew --prefix)/bin/brew shellenv) && \
 
 
 
-# ------------------
 FROM phase0 AS final
 ENV LANG=en_US.UTF-8 \
 	PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH \
@@ -160,4 +129,3 @@ RUN /usr/local/bin/cde-configure
 # Ensure systemd starts, which subsequently starts ssh and docker
 EXPOSE 2022
 CMD ["/lib/systemd/systemd"]
-
